@@ -5,81 +5,96 @@ import matplotlib.pyplot as plt
 
 line_thickness = 2
 
-filename = 'winning'
-frames_dirname = 'frames_' + filename
+# filename = 'winning'
+filename = 'good_stuff'
 
 def extract_frames():
-    #os.mkdir(frames_dirname)
     cv2.namedWindow("preview", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("cropped", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("threshold", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("blur", flags=cv2.WINDOW_AUTOSIZE)
-    # vidcap = cv2.VideoCapture(filename + '.mov')
-    vidcap = cv2.VideoCapture(1)
+    vidcap = cv2.VideoCapture(filename + '.mp4')
+    # vidcap = cv2.VideoCapture(1)
 
-    plt.axis([0, 120, 00, 300])
+    plt.axis([0, 600, 2900, 7200])
     plt.ion()
     # plt.show()
     xdata = [0]
     ydata = [2000]
     line, = plt.plot(ydata)
 
-    min = 10000
+    count = -1
 
-    # for i in range(10):
-    #     y = np.random.random()
-    #     plt.scatter(i, y)
-    #     plt.pause(0.5)
-    #
-    # while True:
-    #     plt.pause(0.05)
-    # return
+    max = -1000000
+    min = 1000000
 
-    # white_vals_per_frame = []
-    count = 0
+    # x_s = 346
+    # y_s = 327
+    # x_e = 405
+    # y_e = 378
+    x_s = 212
+    y_s = 320
+    x_e = 430
+    y_e = 353
 
     while True:
+        count += 1
+        if count < 200:
+            continue
+
         success,image = vidcap.read()
         if (not success):
           break
         image_presentation = image.copy()
-        cv2.line(image_presentation, (140, 200), (500, 200), (0, 0, 255), line_thickness)
-        cv2.line(image_presentation, (140, 240), (500, 240), (0, 0, 255), line_thickness)
+        # cv2.line(image_presentation, (140, 200), (500, 200), (0, 0, 255), line_thickness)
+        # cv2.line(image_presentation, (140, 240), (500, 240), (0, 0, 255), line_thickness)
         cv2.imshow("preview", image_presentation)
 
-        cropped = image[240:280, 140:500]
+        cropped = image[y_s:y_e, x_s:x_e]
         cv2.imshow("cropped", cropped)
 
         bw_image = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
         cv2.imshow("bw", bw_image)
 
-        asdf, threshold = cv2.threshold(bw_image, 240, 255, cv2.THRESH_BINARY)
+        # asdf, threshold = cv2.threshold(bw_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        asdf, threshold = cv2.threshold(bw_image, 210, 255, cv2.THRESH_BINARY)
         cv2.imshow("threshold", threshold)
 
-        blur = cv2.medianBlur(threshold, 7)
+        blur = cv2.medianBlur(threshold, 5)
         cv2.imshow("blur", blur)
 
-        black_count = 60 * 90 - cv2.countNonZero(blur)
-        if (black_count < min):
+        black_count = (x_e - x_s) * (y_e - y_s) - cv2.countNonZero(blur)
+        # white_count = cv2.countNonZero(blur)
+        if black_count > max:
+            max = black_count
+            print('new max', max)
+        elif black_count < min:
             min = black_count
-        print(black_count)
+            print('new min', min)
+        # print(black_count)
         # plt.scatter(count, cv2.countNonZero(blur))
         # plt.plot([count])
         xdata.append(count)
-        ydata.append(black_count - min)
+        ydata.append(black_count)
         line.set_xdata(xdata)
         line.set_ydata(ydata)
         # plt.draw()
         # plt.pause(0.5)
         plt.pause(0.0333)
+        # plt.pause(0.1)
         #
 
 
         # key = cv2.waitKey(50)
         # if key == 27:  # exit on ESC
         #   break
-        count += 1
+    print('min', min)
+    print('max', max)
+    while true:
+        key = cv2.waitKey(50)
+        if key == 27:  # exit on ESC
+          break
     cv2.destroyAllWindows()
 
 def cutout_image():

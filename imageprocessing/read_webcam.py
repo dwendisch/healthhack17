@@ -1,9 +1,11 @@
 import cv2
+import time
 
 cv2.namedWindow("line")
 vc = cv2.VideoCapture(1)
+# time.strftime("%H:%M:%S")
 
-out = cv2.VideoWriter('output.avi', -1, 20.0, (640, 480))
+out = cv2.VideoWriter('output_' + time.strftime("%H:%M:%S") + '.mp4', -1, 20.0, (640, 480))
 
 line_thickness = 2
 

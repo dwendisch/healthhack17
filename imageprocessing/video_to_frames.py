@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 line_thickness = 2
 
 # filename = 'winning'
-filename = 'good_stuff'
+# filename = 'artifacts_but_still_right'
+# filename = 'test'
+filename = "good_stuff"
 
 def extract_frames():
     cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
@@ -15,21 +17,21 @@ def extract_frames():
     # vidcap = cv2.VideoCapture(1)
 
     # plt.axis([0, 600, 4900, 11000])
-    plt.axis([0, 600, 0, 6100])
+    plt.axis([0, 600, 0, 100])
     plt.ion()
-    xdata = [0]
-    ydata = [2000]
+    xdata = []
+    ydata = []
     line, = plt.plot(ydata)
 
     count = -1
 
     max = -1000000
     min = 1000000
+    global_min = min
+    global_max = max
 
     while True:
         count += 1
-        if count < 200:
-            continue
 
         success,image = vidcap.read()
         if (not success):
@@ -39,7 +41,7 @@ def extract_frames():
         bw_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         cv2.imshow("bw", bw_image)
 
-        asdf, threshold = cv2.threshold(bw_image, 210, 255, cv2.THRESH_BINARY)
+        asdf, threshold = cv2.threshold(bw_image, 230, 255, cv2.THRESH_BINARY)
         cv2.imshow("threshold", threshold)
 
         blur = cv2.medianBlur(threshold, 5)
@@ -68,14 +70,23 @@ def extract_frames():
         print('contourarea', contour_area)
         if contour_area > max:
             max = contour_area
-            print('new max', max)
+            #print('new max', max)
         elif contour_area < min:
             min = contour_area
-            print('new min', min)
-        xdata.append(count)
-        ydata.append(contour_area)
-        line.set_xdata(xdata)
-        line.set_ydata(ydata)
+            #print('new min', min)
+
+
+        if count == 150:
+            ratio = (max - min) / 50
+            global_min = min - 20 * ratio  # so that the minimum is at 20
+            global_max = max + 30 * ratio # so that the maximum is at 70
+            print('Calibration finished')
+        elif count > 150:
+            normalized_area = 100 * (contour_area - global_min) / (global_max - global_min)
+            xdata.append(count - 150)
+            ydata.append(normalized_area)
+            line.set_xdata(xdata)
+            line.set_ydata(ydata)
         # plt.pause(0.5)
         plt.pause(0.0333)
         # plt.pause(0.1)

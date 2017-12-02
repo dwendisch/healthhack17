@@ -9,11 +9,11 @@ line_thickness = 2
 filename = 'good_stuff'
 
 def extract_frames():
-    cv2.namedWindow("preview", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("cropped", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("threshold", flags=cv2.WINDOW_AUTOSIZE)
     cv2.namedWindow("blur", flags=cv2.WINDOW_AUTOSIZE)
+    cv2.namedWindow("preview", flags=cv2.WINDOW_AUTOSIZE)
     vidcap = cv2.VideoCapture(filename + '.mp4')
     # vidcap = cv2.VideoCapture(1)
 
@@ -59,18 +59,23 @@ def extract_frames():
 
         blur = cv2.medianBlur(threshold, 5)
         bs, contours, hierarchy = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        max_area = 0
-        contour_index = -1
-        for i, contour in enumerate(contours):
-            area = cv2.contourArea(contour)
-            print(area)
-            if area > max_area:
-                max_area = area
-                contour_index = i
 
-        if contour_index == -1:
-            print('didnt find a contour')
-        cv2.drawContours(image_presentation, contours, contour_index, (0, 0, 255), 3)
+        areas = []
+        contours.sort(key=lambda contour: cv2.contourArea(contour), reverse=True)
+
+        # for i, contour in enumerate(contours):
+
+            # areas.append({'area': cv2.contourArea(contour), 'index': )
+            # print(area)
+            # if area > max_area:
+            #     max_area = area
+            #     contour_index = i
+
+
+        # if contour_index == -1:
+        #     print('didnt find a contour')
+        scnd_biggest_contour_index = 1
+        cv2.drawContours(image_presentation, contours, scnd_biggest_contour_index, (0, 0, 255), 3)
         cv2.imshow("preview", image_presentation)
 
         cv2.imshow("blur", blur)

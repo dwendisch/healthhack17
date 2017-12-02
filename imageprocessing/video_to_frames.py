@@ -75,8 +75,20 @@ def extract_frames():
 
         # if contour_index == -1:
         #     print('didnt find a contour')
-        scnd_biggest_contour_index = 1
-        cv2.drawContours(image_presentation, contours, scnd_biggest_contour_index, (0, 0, 255), 3)
+        contours = contours[0:2]
+
+        M_0 = cv2.moments(contours[0])
+        M_1 = cv2.moments(contours[1])
+        cy_0 = int(M_0['m01'] / M_0['m00'])
+        cy_1 = int(M_1['m01'] / M_1['m00'])
+
+        if cy_0 >= cy_1:
+            lower_contour_index = 0
+        else:
+            lower_contour_index = 1
+
+        # scnd_biggest_contour_index = 1
+        cv2.drawContours(image_presentation, contours, lower_contour_index, (0, 0, 255), 3)
         cv2.imshow("preview", image_presentation)
 
         cv2.imshow("blur", blur)
@@ -87,7 +99,7 @@ def extract_frames():
         black_count = (x_e - x_s) * (y_e - y_s) - cv2.countNonZero(blur)
         # white_count = cv2.countNonZero(blur)
         # print(black_count)
-        contour_area = 11000 - cv2.contourArea(contours[scnd_biggest_contour_index])
+        contour_area = 11000 - cv2.contourArea(contours[lower_contour_index])
         # plt.scatter(count, contour_area)
         print('contourarea', contour_area)
         if contour_area > max:

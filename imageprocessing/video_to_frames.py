@@ -1,5 +1,8 @@
 import cv2
 import os
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 filename = 'winning'
 frames_dirname = 'frames_' + filename
@@ -13,6 +16,26 @@ def extract_frames():
     cv2.namedWindow("blur", flags=cv2.WINDOW_AUTOSIZE)
     vidcap = cv2.VideoCapture(filename + '.mov')
 
+    plt.axis([0, 120, 2200, 2600])
+    plt.ion()
+    # plt.show()
+    xdata = [0]
+    ydata = [2000]
+    line, = plt.plot(ydata)
+
+
+    # for i in range(10):
+    #     y = np.random.random()
+    #     plt.scatter(i, y)
+    #     plt.pause(0.5)
+    #
+    # while True:
+    #     plt.pause(0.05)
+    # return
+
+    # white_vals_per_frame = []
+    count = 0
+
     while True:
         success,image = vidcap.read()
         if (not success):
@@ -24,13 +47,29 @@ def extract_frames():
 
         bw_image = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
         cv2.imshow("bw", bw_image)
+
         asdf, threshold = cv2.threshold(bw_image, 240, 255, cv2.THRESH_BINARY)
         cv2.imshow("threshold", threshold)
+
         blur = cv2.medianBlur(threshold, 7)
         cv2.imshow("blur", blur)
-        key = cv2.waitKey(50)
-        if key == 27:  # exit on ESC
-          break
+
+        print(cv2.countNonZero(blur))
+        # plt.scatter(count, cv2.countNonZero(blur))
+        # plt.plot([count])
+        xdata.append(count)
+        ydata.append(cv2.countNonZero(blur))
+        line.set_xdata(xdata)
+        line.set_ydata(ydata)
+        # plt.draw()
+        plt.pause(0.5)
+
+
+
+        # key = cv2.waitKey(50)
+        # if key == 27:  # exit on ESC
+        #   break
+        count += 1
     cv2.destroyWindow("preview")
     cv2.destroyWindow("bw")
     cv2.destroyWindow("cropped")

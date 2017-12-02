@@ -16,7 +16,7 @@ def extract_frames():
     cv2.namedWindow("blur", flags=cv2.WINDOW_AUTOSIZE)
     vidcap = cv2.VideoCapture(filename + '.mov')
 
-    plt.axis([0, 120, 2200, 2600])
+    plt.axis([0, 120, 2900, 3300])
     plt.ion()
     # plt.show()
     xdata = [0]
@@ -42,7 +42,7 @@ def extract_frames():
           break
         cv2.imshow("preview", image)
 
-        cropped = image[330:390, 610:690]
+        cropped = image[330:390, 620:690]
         cv2.imshow("cropped", cropped)
 
         bw_image = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
@@ -54,16 +54,19 @@ def extract_frames():
         blur = cv2.medianBlur(threshold, 7)
         cv2.imshow("blur", blur)
 
-        print(cv2.countNonZero(blur))
+        black_count = 60 * 90 - cv2.countNonZero(blur)
+
+        print(black_count)
         # plt.scatter(count, cv2.countNonZero(blur))
         # plt.plot([count])
         xdata.append(count)
-        ydata.append(cv2.countNonZero(blur))
+        ydata.append(black_count)
         line.set_xdata(xdata)
         line.set_ydata(ydata)
         # plt.draw()
         plt.pause(0.5)
-
+        # plt.pause(0.05)
+        # 
 
 
         # key = cv2.waitKey(50)

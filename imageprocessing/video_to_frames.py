@@ -17,7 +17,8 @@ def extract_frames():
     vidcap = cv2.VideoCapture(filename + '.mp4')
     # vidcap = cv2.VideoCapture(1)
 
-    plt.axis([0, 600, 2900, 7200])
+    # plt.axis([0, 600, 4900, 11000])
+    plt.axis([0, 600, 0, 6100])
     plt.ion()
     # plt.show()
     xdata = [0]
@@ -85,17 +86,20 @@ def extract_frames():
 
         black_count = (x_e - x_s) * (y_e - y_s) - cv2.countNonZero(blur)
         # white_count = cv2.countNonZero(blur)
-        if black_count > max:
-            max = black_count
-            print('new max', max)
-        elif black_count < min:
-            min = black_count
-            print('new min', min)
         # print(black_count)
-        # plt.scatter(count, cv2.countNonZero(blur))
+        contour_area = 11000 - cv2.contourArea(contours[scnd_biggest_contour_index])
+        # plt.scatter(count, contour_area)
+        print('contourarea', contour_area)
+        if contour_area > max:
+            max = contour_area
+            print('new max', max)
+        elif contour_area < min:
+            min = contour_area
+            print('new min', min)
+
         # plt.plot([count])
         xdata.append(count)
-        ydata.append(black_count)
+        ydata.append(contour_area)
         line.set_xdata(xdata)
         line.set_ydata(ydata)
         # plt.draw()

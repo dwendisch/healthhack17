@@ -49,12 +49,8 @@ def extract_frames():
         image_presentation = image.copy()
         # cv2.line(image_presentation, (140, 200), (500, 200), (0, 0, 255), line_thickness)
         # cv2.line(image_presentation, (140, 240), (500, 240), (0, 0, 255), line_thickness)
-        cv2.imshow("preview", image_presentation)
 
-        cropped = image[y_s:y_e, x_s:x_e]
-        cv2.imshow("cropped", cropped)
-
-        bw_image = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+        bw_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         cv2.imshow("bw", bw_image)
 
         # asdf, threshold = cv2.threshold(bw_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -62,7 +58,25 @@ def extract_frames():
         cv2.imshow("threshold", threshold)
 
         blur = cv2.medianBlur(threshold, 5)
+        bs, contours, hierarchy = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        max_area = 0
+        contour_index = -1
+        for i, contour in enumerate(contours):
+            area = cv2.contourArea(contour)
+            print(area)
+            if area > max_area:
+                max_area = area
+                contour_index = i
+
+        if contour_index == -1:
+            print('didnt find a contour')
+        cv2.drawContours(image_presentation, contours, contour_index, (0, 0, 255), 3)
+        cv2.imshow("preview", image_presentation)
+
         cv2.imshow("blur", blur)
+
+        cropped = blur[y_s:y_e, x_s:x_e]
+        cv2.imshow("cropped", cropped)
 
         black_count = (x_e - x_s) * (y_e - y_s) - cv2.countNonZero(blur)
         # white_count = cv2.countNonZero(blur)

@@ -18,7 +18,7 @@ def extract_frames():
     # vidcap = cv2.VideoCapture(1)
 
     # plt.axis([0, 600, 4900, 11000])
-    plt.axis([0, 600, 0, 100])
+    plt.axis([0, 600, -20, 120])
     plt.ion()
     xdata = [0]
     ydata = [0]
@@ -26,17 +26,18 @@ def extract_frames():
 
     count = -1
 
-    max = -1000000
-    min = 1000000
-    global_min = min
-    global_max = max
+    max_area = -1000000
+    min_area = 1000000
+    global_min = min_area
+    global_max = max_area
 
     while True:
         count += 1
 
         success,image = vidcap.read()
         if (not success):
-          break
+            print('could not read from video input')
+            break
         image_presentation = image.copy()
 
         bw_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -71,22 +72,22 @@ def extract_frames():
 
             contour_area = (640 * 480) - cv2.contourArea(contours[lower_contour_index])
             print('contourarea', contour_area)
-            if contour_area > max:
-                max = contour_area
+            if contour_area > max_area:
+                max_area = contour_area
                 #print('new max', max)
-            elif contour_area < min:
-                min = contour_area
+            elif contour_area < min_area:
+                min_area = contour_area
                 #print('new min', min)
 
         cv2.imshow("preview", image_presentation)
         cv2.imshow("blur", blur)
 
         if count == 150:
-            ratio = (max - min) / 50
-            global_min = min - 20 * ratio  # so that the minimum is at 20
-            global_max = max + 30 * ratio # so that the maximum is at 70
+            ratio = (max_area - min_area) / 50
+            global_min = min_area - 20 * ratio  # so that the minimum is at 20
+            global_max = max_area + 30 * ratio # so that the maximum is at 70
             print('Calibration finished')
-        elif count > 150:
+        elif count > 150 and contour_area:
             normalized_area = 100 * (contour_area - global_min) / (global_max - global_min)
             xdata.append(xdata[-1] + 1)
             line.set_xdata(xdata)
@@ -98,8 +99,8 @@ def extract_frames():
         plt.pause(0.0333)
         # plt.pause(0.1)
 
-    print('min', min)
-    print('max', max)
+    print('min', min_area)
+    print('max', max_area)
     while True:
         key = cv2.waitKey(50)
         if key == 27:  # exit on ESC

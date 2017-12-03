@@ -72,8 +72,13 @@ def extract_frames():
 
             M_0 = cv2.moments(contours[0])
             M_1 = cv2.moments(contours[1])
-            cy_0 = int(M_0['m01'] / M_0['m00'])
-            cy_1 = int(M_1['m01'] / M_1['m00'])
+            # no devision by zero error
+            if not (M_0['m00'] == 0 or M_1['m00'] == 0):
+                cy_0 = int(M_0['m01'] / M_0['m00'])
+                cy_1 = int(M_1['m01'] / M_1['m00'])
+            else:
+                cy_0 = 1
+                cy_1 = 0
 
             if cy_0 >= cy_1:
                 lower_contour_index = 0

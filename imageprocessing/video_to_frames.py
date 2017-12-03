@@ -11,26 +11,27 @@ filename = 'test_w_black'
 # filename = "good_stuff"
 
 
-TCP_IP = '127.0.0.1'
-TCP_PORT = 5005
-BUFFER_SIZE = 1024
+# TCP_IP = '127.0.0.1'
+# TCP_PORT = 5005
+# BUFFER_SIZE = 1024
 
 start_message = 's'
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((TCP_IP, TCP_PORT))
-s.send(bytes(start_message, 'UTF-8'))
+# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# s.connect((TCP_IP, TCP_PORT))
+# s.send(bytes(start_message, 'UTF-8'))
 # data = s.recv(BUFFER_SIZE)
 
 def extract_frames():
-    cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
-    cv2.namedWindow("threshold", flags=cv2.WINDOW_AUTOSIZE)
-    cv2.namedWindow("blur", flags=cv2.WINDOW_AUTOSIZE)
-    cv2.namedWindow("preview", flags=cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow("threshold", flags=cv2.WINDOW_AUTOSIZE)
+    # cv2.namedWindow("blur", flags=cv2.WINDOW_AUTOSIZE)
+    cv2.namedWindow("image_presentation", flags=cv2.WINDOW_AUTOSIZE)
+    cv2.namedWindow("image_original", flags=cv2.WINDOW_AUTOSIZE)
     vidcap = cv2.VideoCapture(filename + '.mp4')
     # vidcap = cv2.VideoCapture(1)
 
     # plt.axis([0, 600, 4900, 11000])
-    plt.axis([0, 600, -20, 120])
+    plt.axis([0, 300, 20, 80])
     plt.ion()
     xdata = [0]
     ydata = [0]
@@ -51,12 +52,13 @@ def extract_frames():
             print('could not read from video input')
             break
         image_presentation = image.copy()
+        cv2.imshow("image_original", image)
 
         bw_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        cv2.imshow("bw", bw_image)
+        # cv2.imshow("bw", bw_image)
 
         asdf, threshold = cv2.threshold(bw_image, 230, 255, cv2.THRESH_BINARY)
-        cv2.imshow("threshold", threshold)
+        # cv2.imshow("threshold", threshold)
 
         # black image to start calibration
         if cv2.countNonZero(threshold) < 20 * 10:
@@ -88,7 +90,7 @@ def extract_frames():
             cv2.drawContours(image_presentation, contours, lower_contour_index, (0, 0, 255), 3)
 
             contour_area = (640 * 480) - cv2.contourArea(contours[lower_contour_index])
-            print('contourarea', contour_area)
+            # print('contourarea', contour_area)
             if contour_area > max_area:
                 max_area = contour_area
                 #print('new max', max)
@@ -96,8 +98,8 @@ def extract_frames():
                 min_area = contour_area
                 #print('new min', min)
 
-        cv2.imshow("preview", image_presentation)
-        cv2.imshow("blur", blur)
+        cv2.imshow("image_presentation", image_presentation)
+        # cv2.imshow("blur", blur)
 
         if count == 150:
             ratio = (max_area - min_area) / 50
@@ -111,9 +113,10 @@ def extract_frames():
             if normalized_area < 0 or normalized_area > 100:
                 normalized_area = 0 if normalized_area < 0 else 100
             ydata.append(normalized_area)
-            s.send(bytes(str(normalized_area), 'UTF-8'))
+            # s.send(bytes(str(normalized_area), 'UTF-8'))
             line.set_ydata(ydata)
         # plt.pause(0.5)
+        # if count > 150:
         plt.pause(0.0333)
         # plt.pause(0.1)
 
@@ -124,6 +127,6 @@ def extract_frames():
         if key == 27:  # exit on ESC
           break
     cv2.destroyAllWindows()
-    s.close()
+    # s.close()
 
 extract_frames()

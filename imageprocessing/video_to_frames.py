@@ -5,7 +5,8 @@ line_thickness = 2
 
 # filename = 'winning'
 # filename = 'artifacts_but_still_right'
-filename = 'test'
+# filename = 'test'
+filename = 'test_w_black'
 # filename = "good_stuff"
 
 def extract_frames():
@@ -19,8 +20,8 @@ def extract_frames():
     # plt.axis([0, 600, 4900, 11000])
     plt.axis([0, 600, 0, 100])
     plt.ion()
-    xdata = []
-    ydata = []
+    xdata = [0]
+    ydata = [0]
     line, = plt.plot(ydata)
 
     count = -1
@@ -44,37 +45,41 @@ def extract_frames():
         asdf, threshold = cv2.threshold(bw_image, 230, 255, cv2.THRESH_BINARY)
         cv2.imshow("threshold", threshold)
 
+        # black image to start calibration
+        if cv2.countNonZero(threshold) < 20 * 10:
+            count = 0
+
         blur = cv2.medianBlur(threshold, 5)
         bs, contours, hierarchy = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        contours.sort(key=lambda contour: cv2.contourArea(contour), reverse=True)
+        if len(contours) >= 2:
+            contours.sort(key=lambda contour: cv2.contourArea(contour), reverse=True)
 
-        contours = contours[0:2]
+            contours = contours[0:2]
 
-        M_0 = cv2.moments(contours[0])
-        M_1 = cv2.moments(contours[1])
-        cy_0 = int(M_0['m01'] / M_0['m00'])
-        cy_1 = int(M_1['m01'] / M_1['m00'])
+            M_0 = cv2.moments(contours[0])
+            M_1 = cv2.moments(contours[1])
+            cy_0 = int(M_0['m01'] / M_0['m00'])
+            cy_1 = int(M_1['m01'] / M_1['m00'])
 
-        if cy_0 >= cy_1:
-            lower_contour_index = 0
-        else:
-            lower_contour_index = 1
+            if cy_0 >= cy_1:
+                lower_contour_index = 0
+            else:
+                lower_contour_index = 1
 
-        cv2.drawContours(image_presentation, contours, lower_contour_index, (0, 0, 255), 3)
+            cv2.drawContours(image_presentation, contours, lower_contour_index, (0, 0, 255), 3)
+
+            contour_area = (640 * 480) - cv2.contourArea(contours[lower_contour_index])
+            print('contourarea', contour_area)
+            if contour_area > max:
+                max = contour_area
+                #print('new max', max)
+            elif contour_area < min:
+                min = contour_area
+                #print('new min', min)
+
         cv2.imshow("preview", image_presentation)
-
         cv2.imshow("blur", blur)
-
-        contour_area = 11000 - cv2.contourArea(contours[lower_contour_index])
-        print('contourarea', contour_area)
-        if contour_area > max:
-            max = contour_area
-            #print('new max', max)
-        elif contour_area < min:
-            min = contour_area
-            #print('new min', min)
-
 
         if count == 150:
             ratio = (max - min) / 50
@@ -83,7 +88,7 @@ def extract_frames():
             print('Calibration finished')
         elif count > 150:
             normalized_area = 100 * (contour_area - global_min) / (global_max - global_min)
-            xdata.append(count - 150)
+            xdata.append(xdata[-1] + 1)
             line.set_xdata(xdata)
             if normalized_area < 0 or normalized_area > 100:
                 normalized_area = 0 if normalized_area < 0 else 100

@@ -15,13 +15,11 @@ TCP_IP = '127.0.0.1'
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
 
-MESSAGE = "Hello, World!"
+start_message = 's'
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
-s.send(bytes(MESSAGE, 'UTF-8'))
+s.send(bytes(start_message, 'UTF-8'))
 # data = s.recv(BUFFER_SIZE)
-s.close()
-
 
 def extract_frames():
     cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
@@ -108,6 +106,7 @@ def extract_frames():
             if normalized_area < 0 or normalized_area > 100:
                 normalized_area = 0 if normalized_area < 0 else 100
             ydata.append(normalized_area)
+            s.send(bytes(str(normalized_area), 'UTF-8'))
             line.set_ydata(ydata)
         # plt.pause(0.5)
         plt.pause(0.0333)
@@ -120,5 +119,6 @@ def extract_frames():
         if key == 27:  # exit on ESC
           break
     cv2.destroyAllWindows()
+    s.close()
 
 extract_frames()

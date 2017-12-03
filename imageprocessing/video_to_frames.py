@@ -5,8 +5,8 @@ line_thickness = 2
 
 # filename = 'winning'
 # filename = 'artifacts_but_still_right'
-# filename = 'test'
-filename = "good_stuff"
+filename = 'test'
+# filename = "good_stuff"
 
 def extract_frames():
     cv2.namedWindow("bw", flags=cv2.WINDOW_AUTOSIZE)
@@ -84,8 +84,10 @@ def extract_frames():
         elif count > 150:
             normalized_area = 100 * (contour_area - global_min) / (global_max - global_min)
             xdata.append(count - 150)
-            ydata.append(normalized_area)
             line.set_xdata(xdata)
+            if normalized_area < 0 or normalized_area > 100:
+                normalized_area = 0 if normalized_area < 0 else 100
+            ydata.append(normalized_area)
             line.set_ydata(ydata)
         # plt.pause(0.5)
         plt.pause(0.0333)
